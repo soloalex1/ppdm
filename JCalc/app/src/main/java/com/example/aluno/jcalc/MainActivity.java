@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView operCount;
 
     private int value;
+    private float result;
     private String TAG = Integer.toString(value);
 
     @Override
@@ -27,16 +28,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.textLabel1 = (EditText) findViewById(R.id.textLabel1);
-        this.textLabel2 = (EditText) findViewById(R.id.textLabel2);
+        this.textLabel1 = findViewById(R.id.textLabel1);
+        this.textLabel2 = findViewById(R.id.textLabel2);
 
         this.spinner = findViewById(R.id.operatorSpinner);
 
-        this.btnCalc = (Button) findViewById(R.id.btnCalc);
+        this.btnCalc =  findViewById(R.id.btnCalc);
         this.btnCalc.setOnClickListener(this);
 
-        this.resultView = (TextView) findViewById(R.id.resultView);
-        this.operCount = (TextView) findViewById(R.id.operCount);
+        this.resultView = findViewById(R.id.resultView);
+        this.operCount = findViewById(R.id.operCount);
 
         this.value = 0;
 
@@ -91,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(TAG, "Activity Restarted!");
     }
 
-
     @Override
     public void onClick (View v){
         try {
@@ -102,15 +102,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (v == btnCalc){
                 int operation = spinner.getSelectedItemPosition();
 
-                float result;
-
                 switch(operation){
-                    
+                    case 0:
+                        this.result = op1 + op2;
+                        break;
+
+                    case 1:
+                        this.result = op1 - op2;
+                        break;
+
+                    case 2:
+                        this.result = op1 * op2;
+                        break;
+
+                    case 3:
+                        if(op2 != 0){
+                            this.result = op1 / op2;
+                            break;
+                        } else {
+                            this.resultView.setText("pega o doido");
+                            break;
+                        }
                 }
             }
 
-        } catch (NumberFormatException e){
-
+            this.resultView.setText(Float.toString(this.result));
+        } catch (NumberFormatException e) {
+            this.resultView.setText("digita ai man");
         }
     }
 }
