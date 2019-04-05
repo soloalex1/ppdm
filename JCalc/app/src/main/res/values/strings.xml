@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">JCalc</string>
+    <string name="icon_desc">Ícone da calculadora</string>
+    <string name="valor1">Operador 1</string>
+    <string name="valor2">Operador 2</string>
+    <string name="result">Resultado</string>
+    <string name="btnCalc">Calcular</string>
+    <string-array name="operatorList">
+        <item>+</item>
+        <item>-</item>
+        <item>*</item>
+        <item>/</item>
+    </string-array>
+</resources>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/calcIcon"
+            android:layout_width="match_parent"
+            android:layout_height="178dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="15dp"
+            android:contentDescription="@string/icon_desc"
+            app:srcCompat="@drawable/calcicon" />
+
+        <EditText
+            android:id="@+id/textLabel1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/valor1"
+            android:inputType="numberSigned|numberDecimal" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="21dp" />
+
+        <Spinner
+            android:id="@+id/operatorSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            tools:layout_editor_absoluteX="129dp"
+            tools:layout_editor_absoluteY="282dp" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="21dp" />
+
+        <EditText
+            android:id="@+id/textLabel2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/valor2"
+            android:inputType="numberSigned|numberDecimal" />
+
+        <Button
+            android:id="@+id/btnCalc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btnCalc" />
+
+        <TextView
+            android:id="@+id/resultView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/result" />
+
+        <TextView
+            android:id="@+id/operCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/result" />
+    </LinearLayout>
+</ScrollView>
