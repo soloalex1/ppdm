@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">PackageManager</string>
+    <string name="hello">Oi com a tela em pé</string>
+</resources>

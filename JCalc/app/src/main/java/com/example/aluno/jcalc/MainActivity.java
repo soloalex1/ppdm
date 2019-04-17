@@ -95,29 +95,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick (View v){
         try {
-
             float op1 = Float.valueOf(textLabel1.getText().toString());
             float op2 = Float.valueOf(textLabel2.getText().toString());
 
             if (v == btnCalc){
                 int operation = spinner.getSelectedItemPosition();
-
                 switch(operation){
                     case 0:
                         this.result = op1 + op2;
+                        this.resultView.setText(Float.toString(this.result));
                         break;
 
                     case 1:
                         this.result = op1 - op2;
+                        this.resultView.setText(Float.toString(this.result));
                         break;
 
                     case 2:
                         this.result = op1 * op2;
+                        this.resultView.setText(Float.toString(this.result));
                         break;
 
                     case 3:
                         if(op2 != 0){
                             this.result = op1 / op2;
+                            this.resultView.setText(Float.toString(this.result));
                             break;
                         } else {
                             this.resultView.setText("pega o doido");
@@ -125,8 +127,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                 }
             }
-
-            this.resultView.setText(Float.toString(this.result));
         } catch (NumberFormatException e) {
             this.resultView.setText("digita ai man");
         }
