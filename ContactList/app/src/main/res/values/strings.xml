@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">ContactList</string>
+    <string name="app_name">Lista de Contatos</string>
+    <string name="btn_src">Pesquisar Contato</string>
+    <string name="btn_add">Cadastrar Contato</string>
 </resources>
