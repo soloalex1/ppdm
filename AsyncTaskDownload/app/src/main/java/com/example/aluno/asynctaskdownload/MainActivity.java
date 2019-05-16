@@ -2,89 +2,120 @@ package com.example.aluno.asynctaskdownload;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.design.widget.CoordinatorLayout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
-    private ImageView imagem;
+    private Context context;
+    private Activity activity;
+    private CoordinatorLayout layout;
+    private AsyncTask task;
+
+    public ImageView imagem;
     private Button baixar;
     private EditText endereco;
-    private ProgressDialog load;
+    private ProgressBar bar;
+
+    private int progress = 0;
+    private Handler handler;
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)  {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        context = getApplicationContext();
+        activity = MainActivity.this;
 
         imagem = findViewById(R.id.imgDownload);
         baixar = findViewById(R.id.btnDownload);
         endereco = findViewById(R.id.text);
+        bar = findViewById(R.id.progressBar);
 
-        Log.i("AsyncTask", "Elementos de tela criados e atribuidos Thread: " +
-                Thread.currentThread().getName());
         baixar.setOnClickListener(this);
 
     }
 
     @Override
     public void onClick(View v) {
-        Log.i("AsyncTask", "Botão Clicado Thread: " + Thread.currentThread().getName());
-        chamarAsyncTask(endereco.getText().toString());
+        task = new DownloadTask().execute(stringToURL(endereco.getText().toString()));
     }
 
-    private void chamarAsyncTask(String endereco){
-        TarefaDownload download = new TarefaDownload();
-        Log.i("AsyncTask", "AsyncTask senado chamado Thread: " +
-                Thread.currentThread().getName());
-        download.execute(endereco);
+    protected URL stringToURL(String s) {
+        try {
+            return new URL(s);
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
-    private class TarefaDownload extends AsyncTask<String, Void, Bitmap>{
-        @Override
+    public class DownloadTask extends AsyncTask<URL, Integer, Bitmap> {
+
         protected void onPreExecute(){
-            Log.i("AsyncTask", "Exibindo ProgressDialog na tela Thread: " +
-                    Thread.currentThread().getName());
-            load = ProgressDialog.show(MainActivity.this, "Por favor Aguarde ...",
-                    "Baixando Imagem ...");
+            Log.v("Task", "Iniciando download em background!");
+
         }
 
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            Bitmap imagemBitmap = null;
-            try{
-                Log.i("AsyncTask", "Baixando a imagem Thread: " +
-                        Thread.currentThread().getName());
-                imagemBitmap = ImageDownloader.baixarImagem(params[0]);
-            }catch (IOException e){
-                Log.i("AsyncTask", e.getMessage());
+        protected Bitmap doInBackground(URL... urls){
+            URL url = urls[0];
+            HttpURLConnection con = null;
+
+            int imageLength = con.getContentLength();
+            byte[] data = new byte[1024];
+
+            long total = 0;
+
+            try {
+                con = (HttpURLConnection) url.openConnection();
+                con.connect();
+
+                InputStream is = con.getInputStream();
+                BufferedInputStream bufferedIS = new BufferedInputStream(is);
+
+                while((progress = is.read(data)) != -1){
+                    total += progress;
+                    publishProgress((int) (total * 100) / imageLength);
+                }
+
+                return BitmapFactory.decodeStream(bufferedIS);
+
+            } catch (IOException e){
+                e.printStackTrace();
+            } finally {
+                con.disconnect();
             }
 
-            return imagemBitmap;
+            return null;
         }
 
-        @Override
-        protected void onPostExecute(Bitmap bitmap){
-            if(bitmap!=null) {
-                imagem.setImageBitmap(bitmap);
-                Log.i("AsyncTask", "Exibindo Bitmap Thread: " +
-                        Thread.currentThread().getName());
-            } else {
-                Log.i("AsyncTask", "Erro ao baixar a imagem " +
-                        Thread.currentThread().getName());
+        protected void onPostExecute(Bitmap img){
+
+            if(img != null){
+                imagem.setImageBitmap(img);
             }
-            Log.i("AsyncTask", "Tirando ProgressDialog da tela Thread: " +
-                    Thread.currentThread().getName());
-            load.dismiss();
         }
     }
+
 }
 
