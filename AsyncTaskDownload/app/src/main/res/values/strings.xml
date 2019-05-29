@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ImageDownloader</string>
+    <string name="btn_text">Baixar Imagem</string>
+    <string name="url_placeholder">Insira a URL aqui...</string>
+</resources>
