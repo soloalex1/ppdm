@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPasswordField = findViewById(R.id.password);
 
         // Buttons
-        findViewById(R.id.email_sign_in_button).setOnClickListener(this);
-        findViewById(R.id.email_create_account_button).setOnClickListener(this);
+        findViewById(R.id.btnSignIn).setOnClickListener(this);
+        findViewById(R.id.btnRegister).setOnClickListener(this);
 
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
@@ -70,9 +70,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         int i = view.getId();
-        if (i == R.id.email_create_account_button) {
+        if (i == R.id.btnRegister) {
             createAccount(mEmailField.getText().toString(), mPasswordField.getText().toString());
-        } else if (i == R.id.email_sign_in_button) {
+        } else if (i == R.id.btnSignIn) {
             //signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
 
             //int i= 1;
