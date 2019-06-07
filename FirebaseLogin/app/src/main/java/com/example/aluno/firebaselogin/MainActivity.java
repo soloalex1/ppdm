@@ -1,141 +1,203 @@
 package com.example.aluno.firebaselogin;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener,TextToSpeech.OnInitListener{
-    private TextView mStatusTextView;
-    private EditText mEmailField;
-    private EditText mPasswordField;
+    private static final String TAG = "Login Firebase";
+
+    TextView stats, detail;
+    EditText emailField, passwordField;
+    LinearLayout layoutLogin, camposLogin, btnsLogin, layoutLogado;
+    Button btnLogin, btnCadastro, btnLogout, btnVerify;
 
     // [START declare_auth]
     private FirebaseAuth mAuth;
     // [END declare_auth]
 
-    TextToSpeech ttobj;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // Views
-        mStatusTextView = findViewById(R.id.status);
-        mEmailField = findViewById(R.id.emailField);
-        mPasswordField = findViewById(R.id.password);
+        stats = findViewById(R.id.status);
+        detail = findViewById(R.id.detail);
+        emailField = findViewById(R.id.emailField);
+        passwordField = findViewById(R.id.password);
 
-        // Buttons
-        findViewById(R.id.btnSignIn).setOnClickListener(this);
-        findViewById(R.id.btnRegister).setOnClickListener(this);
+        // Botões
+        btnLogin = findViewById(R.id.btnSignIn);
+        btnCadastro = findViewById(R.id.btnRegister);
+        btnLogout = findViewById(R.id.btnSignOut);
+        btnVerify = findViewById(R.id.btnVerify);
 
-        // [START initialize_auth]
+        // Layouts
+        layoutLogado = findViewById(R.id.layoutLogado);
+        layoutLogin = findViewById(R.id.layoutLogin);
+        btnsLogin = findViewById(R.id.btnsLogin);
+        camposLogin = findViewById(R.id.camposLogin);
+
+        // Listeners
+        btnLogin.setOnClickListener(this);
+        btnCadastro.setOnClickListener(this);
+        btnLogout.setOnClickListener(this);
+        btnVerify.setOnClickListener(this);
+
+        // Firebase
         mAuth = FirebaseAuth.getInstance();
-        // [END initialize_auth]
-        ttobj = new TextToSpeech(this, this);
     }
-    // [START on_start_check_user]
+
     @Override
-    public void onStart() {
+    public void onStart() { // Verifica se o usuário não é nulo e atualiza a UI de acordo
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        // FirebaseUser currentUser = mAuth.getCurrentUser();
-        //updateUI(currentUser);
-    }
-    // [END on_start_check_user]
-
-    public void updateUI(FirebaseUser fUser){
-        if (fUser !=null) {
-            mStatusTextView.setText("Sucesso no Cadastro! Uid:"+fUser.getUid());
-            fUser.sendEmailVerification();
-        } else   mStatusTextView.setText("Erro no Cadastro");
-
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
     }
 
-    @Override
-    public void onClick(View view) {
-        int i = view.getId();
-        if (i == R.id.btnRegister) {
-            createAccount(mEmailField.getText().toString(), mPasswordField.getText().toString());
-        } else if (i == R.id.btnSignIn) {
-            //signIn(mEmailField.getText().toString(), mPasswordField.getText().toString());
+    private void criarConta(String email, String password) {
+        Log.d(TAG, "criar conta: " + email);
+        if (!validateForm()) return;
 
-            //int i= 1;
-            ttobj.speak("Função não implementada", TextToSpeech.QUEUE_FLUSH,null, "1");
-            mStatusTextView.setText("Função não implementada");
-        }
-    }
-
-    private void createAccount(String email, String password) {
-        Log.d("appLS", "createAccount:" + email);
-        if (!validateForm()) {
-            return;
-        }
-        //       showProgressDialog();
-        // [START create_user_with_email]
-        Task t=mAuth.createUserWithEmailAndPassword(email, password);
-        t.addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("appLS", "createUserWithEmail:success");
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    updateUI(user);
-
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w("appLS", "createUserWithEmail:failure", task.getException());
-
-                    updateUI(null);
+        mAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) { // Se der certo, atualiza a UI com as infos do novo usuário
+                        Log.d(TAG, "criarConta:success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        updateUI(user);
+                    } else { // Se não der, mostra uma mensagem pro usuário
+                        Log.w(TAG, "criarConta:failure", task.getException());
+                        Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        updateUI(null);
+                    }
                 }
+            });
+    }
 
-            }
-        });
-        // [END create_user_with_email]
+    private void signIn(String email, String password) {
+        Log.d(TAG, "signIn:" + email);
+        if (!validateForm()) return;
+        mAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "signInWithEmail:success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        updateUI(user);
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        updateUI(null);
+                    }
+                }
+            });
+    // [END sign_in_with_email]
+    }
+
+    private void signOut() {
+        mAuth.signOut();
+        updateUI(null);
+    }
+
+    private void sendEmailVerification() {
+        // Disable button
+        btnVerify.setEnabled(false);
+
+        // Send verification email
+        // [START send_email_verification]
+        final FirebaseUser user = mAuth.getCurrentUser();
+        user.sendEmailVerification()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // [START_EXCLUDE]
+                        // Re-enable button
+                        btnVerify.setEnabled(true);
+
+                        if (task.isSuccessful()) {
+                            Toast.makeText(MainActivity.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.e(TAG, "sendEmailVerification", task.getException());
+                            Toast.makeText(MainActivity.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                        }
+                        // [END_EXCLUDE]
+                    }
+                });
+        // [END send_email_verification]
     }
 
     private boolean validateForm() {
         boolean valid = true;
 
-        String email = mEmailField.getText().toString();
+        String email = emailField.getText().toString();
         if (TextUtils.isEmpty(email)) {
-            mEmailField.setError("Requirido.");
+            emailField.setError("Required.");
             valid = false;
         } else {
-            mEmailField.setError(null);
+            emailField.setError(null);
         }
 
-        String password = mPasswordField.getText().toString();
+        String password = passwordField.getText().toString();
         if (TextUtils.isEmpty(password)) {
-            mPasswordField.setError("Requirido.");
+            passwordField.setError("Required.");
             valid = false;
         } else {
-            mPasswordField.setError(null);
+            passwordField.setError(null);
         }
 
         return valid;
     }
 
-    @Override
-    public void onInit(int status) {
-        mStatusTextView.setText("Startando TTS");
-        //ttobj.setLanguage(Locale.)
+    private void updateUI(FirebaseUser user) {
+        if (user != null) {
+            stats.setText("Sucesso no cadastro!");
+            detail.setText("ID de usuário: " + user.getUid());
+
+            btnsLogin.setVisibility(View.GONE);
+            camposLogin.setVisibility(View.GONE);
+            layoutLogado.setVisibility(View.VISIBLE);
+
+            btnVerify.setEnabled(!user.isEmailVerified());
+        } else {
+//          detail.setText("");
+            btnsLogin.setVisibility(View.VISIBLE);
+            camposLogin.setVisibility(View.VISIBLE);
+            layoutLogado.setVisibility(View.GONE);
+        }
     }
 
+    @Override
+    public void onClick(View v) {
+        int i = v.getId();
+        if (i == btnCadastro.getId()) {
+            criarConta(emailField.getText().toString(), passwordField.getText().toString());
+        } else if (i == btnLogin.getId()) {
+            signIn(emailField.getText().toString(), passwordField.getText().toString());
+        } else if (i == btnLogout.getId()) {
+            signOut();
+        } else if (i == btnVerify.getId()) {
+            sendEmailVerification();
+        }
+    }
 }
