@@ -1,6 +1,5 @@
-package com.example.aluno.contactlist;
+package com.example.aluno.contactlist.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -13,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.example.aluno.contactlist.model.ContatoDeEmergencia;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
