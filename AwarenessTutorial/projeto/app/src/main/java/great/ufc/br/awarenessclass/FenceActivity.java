@@ -31,22 +31,31 @@ public class FenceActivity extends AppCompatActivity implements OnSuccessListene
         setContentView(R.layout.activity_fence);
 
         //Criar as AwarenessFences
-        AwarenessFence headphone = HeadphoneFence.during(HeadphoneState.PLUGGED_IN); //
+        AwarenessFence headphone = HeadphoneFence.during(HeadphoneState.PLUGGED_IN);
         AwarenessFence walking = DetectedActivityFence.during(DetectedActivityFence.WALKING);
+        AwarenessFence headphoneWalking = AwarenessFence.and(headphone, walking);
 
         //Filtros de Intent
-//        IntentFilter hp = new IntentFilter("headphone");
+//      IntentFilter hp = new IntentFilter("headphone");
         IntentFilter walk = new IntentFilter("walking");
-        //Registrar Receivers (actions) na pilha do Android
-//        registerReceiver(new VibrateAction(), hp);
+        IntentFilter hpWalk = new IntentFilter("headphoneWalking");
+
+        // Registrar Receivers (actions) na pilha do Android
+//      registerReceiver(new VibrateAction(), hp);
         registerReceiver(new VibrateAction(), walk);
-        //Registrar PendingIntents getBroadcast com os filtros criados
-//        PendingIntent pi = PendingIntent.getBroadcast(this,123, new Intent("headphone"),PendingIntent.FLAG_CANCEL_CURRENT);
+        registerReceiver(new NotificationAction(), hpWalk);
+
+        // Registrar PendingIntents com os filtros criados
+//      PendingIntent pi = PendingIntent.getBroadcast(this,123, new Intent("headphone"),PendingIntent.FLAG_CANCEL_CURRENT);
         PendingIntent pi2 = PendingIntent.getBroadcast(this,123, new Intent("walking"),PendingIntent.FLAG_CANCEL_CURRENT);
-        //Registro de Fences no Google Awareness API
+        PendingIntent pendingCombination = PendingIntent.getBroadcast(this, 123, new Intent("headphoneWalking"), PendingIntent.FLAG_CANCEL_CURRENT);
+
+        // Registro de Fences no Google Awareness API
         FenceClient fc = Awareness.getFenceClient(this);
-//        fc.updateFences(new FenceUpdateRequest.Builder().addFence("Headphone",headphone,pi).build()).addOnSuccessListener(this).addOnFailureListener(this);
+//      fc.updateFences(new FenceUpdateRequest.Builder().addFence("Headphone",headphone,pi).build()).addOnSuccessListener(this).addOnFailureListener(this);
         fc.updateFences(new FenceUpdateRequest.Builder().addFence("Walking", walking, pi2).build()).addOnSuccessListener(this).addOnFailureListener(this);
+        fc.updateFences(new FenceUpdateRequest.Builder().addFence("Headphone Walking", headphoneWalking, pendingCombination).build())
+                .addOnSuccessListener(this).addOnFailureListener(this);
     }
 
     @Override
